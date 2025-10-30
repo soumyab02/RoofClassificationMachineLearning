@@ -65,3 +65,27 @@ for images, labels in train_ds.take(1):
         plt.title(class_names[labels[i]])
         plt.axis("off")
 plt.show()
+
+num_classes = len(class_names) 
+model = Sequential([ 
+    #Rescales images to [0,1] and sets input image size
+	layers.Rescaling(1./255, input_shape=(180,180, 3)), 
+    # Adds a convolutional layer with 16 filters and ReLU activation(dot product)
+	layers.Conv2D(16, 3, padding='same', activation='relu'), 
+    #Adds a max-pooling layer to down sample feature maps and decreases parameters
+	layers.MaxPooling2D(), 
+	layers.Conv2D(32, 3, padding='same', activation='relu'), 
+	layers.MaxPooling2D(), 
+	layers.Conv2D(64, 3, padding='same', activation='relu'), 
+	layers.MaxPooling2D(), 
+	layers.Flatten(), 
+	layers.Dense(128, activation='relu'), 
+	layers.Dense(num_classes) 
+]) 
+
+#uses adam optimizer and using CategoricalCrossEntropy to find minimum loss during epochs 
+model.compile(optimizer='adam', 
+			loss=tf.keras.losses.SparseCategoricalCrossentropy( 
+				from_logits=True), 
+			metrics=['accuracy']) 
+model.summary() 
