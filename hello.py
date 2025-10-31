@@ -7,9 +7,10 @@ from PIL import Image
 import tensorflow as tf
 import pathlib
 from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow.keras import layers
-from tensorflow.keras.models import Sequential
+from keras import layers
+from keras import layers
+from keras.models import Sequential
+from keras.callbacks import Callback
 import pathlib
 
 #getting the roof dataset 
@@ -84,8 +85,47 @@ model = Sequential([
 ]) 
 
 #uses adam optimizer and using CategoricalCrossEntropy to find minimum loss during epochs 
-model.compile(optimizer='adam', 
-			loss=tf.keras.losses.SparseCategoricalCrossentropy( 
-				from_logits=True), 
-			metrics=['accuracy']) 
-model.summary() 
+model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy']) 
+#model.summary() 
+
+epochs = 10
+history = model.fit(train_ds, validation_data=val_ds, epochs=epochs)
+'''class LogEveryNEpochs(Callback):
+    def __init__(self, n):
+        super().__init__()
+        self.n = n
+
+    def on_epoch_end(self, epoch, logs=None):
+        if (epoch + 1) % self.n == 0:
+            print(f"Epoch {epoch + 1}/{self.params['epochs']} - "
+                  f"Loss: {logs['loss']:.4f} - "
+                  f"Val Loss: {logs['val_loss']:.4f}")
+
+# Instantiate the custom callback
+epochs_to_log = 10
+custom_logger = LogEveryNEpochs(epochs_to_log)
+
+epochs = 100
+# Update the model.fit() call
+history = model.fit(train_ds, validation_data=val_ds, epochs=epochs, verbose=0, callbacks=[custom_logger])
+
+'''
+
+#visualizing the accuracy and loss
+acc = history.history['accuracy'] 
+val_acc = history.history['val_accuracy'] 
+loss = history.history['loss'] 
+val_loss = history.history['val_loss'] 
+epochs_range = range(epochs) 
+plt.figure(figsize=(8, 8)) 
+plt.subplot(1, 2, 1) 
+plt.plot(epochs_range, acc, label='Training Accuracy') 
+plt.plot(epochs_range, val_acc, label='Validation Accuracy') 
+plt.legend(loc='lower right') 
+plt.title('Training and Validation Accuracy') 
+plt.subplot(1, 2, 2) 
+plt.plot(epochs_range, loss, label='Training Loss') 
+plt.plot(epochs_range, val_loss, label='Validation Loss') 
+plt.legend(loc='upper right') 
+plt.title('Training and Validation Loss') 
+plt.show() 
