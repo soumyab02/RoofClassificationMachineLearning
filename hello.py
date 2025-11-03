@@ -67,8 +67,25 @@ for images, labels in train_ds.take(1):
         plt.axis("off")
 plt.show()
 
+data_augmentation = keras.Sequential([layers.RandomFlip("horizontal",input_shape=(180,180,3)), layers.RandomRotation(0.1), layers.RandomZoom(0.1),])
+plt.figure(figsize=(10,10))
+for images, labels in train_ds.take(1):
+    if images.shape[0] < 9:
+        print(f"Warning: Batch size is {images.shape[0]}, less than 9. Displaying available images.")
+        num_to_display = images.shape[0]
+    else:
+        num_to_display = 9
+    for i in range(num_to_display):
+        augmented_images = data_augmentation(images)
+        ax = plt.subplot(3, 3, i + 1)
+        plt.imshow(augmented_images[i].numpy().astype("uint8"))
+        plt.title(class_names[labels[i]])
+        plt.axis("off")
+plt.show()
+
 num_classes = len(class_names) 
 model = Sequential([ 
+    data_augmentation,
     #Rescales images to [0,1] and sets input image size
 	layers.Rescaling(1./255, input_shape=(180,180, 3)), 
     # Adds a convolutional layer with 16 filters and ReLU activation(dot product)
@@ -88,28 +105,23 @@ model = Sequential([
 model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy']) 
 #model.summary() 
 
-epochs = 10
-history = model.fit(train_ds, validation_data=val_ds, epochs=epochs)
-'''class LogEveryNEpochs(Callback):
+
+class LogEveryNEpochs(Callback):
     def __init__(self, n):
         super().__init__()
         self.n = n
-
     def on_epoch_end(self, epoch, logs=None):
+        # Epoch numbers are 0-indexed, so we add 1 for display purposes
         if (epoch + 1) % self.n == 0:
-            print(f"Epoch {epoch + 1}/{self.params['epochs']} - "
-                  f"Loss: {logs['loss']:.4f} - "
-                  f"Val Loss: {logs['val_loss']:.4f}")
+            print(f"\nEpoch {epoch + 1}/{self.params['epochs']} - "
+                  f"Loss: {logs.get('loss'):.4f} - Acc: {logs.get('accuracy'):.4f} - "
+                  f"Val Loss: {logs.get('val_loss'):.4f} - Val Acc: {logs.get('val_accuracy'):.4f}")
 
-# Instantiate the custom callback
-epochs_to_log = 10
-custom_logger = LogEveryNEpochs(epochs_to_log)
+# Instantiate the custom callback to log every 10 epochs
+log_callback = LogEveryNEpochs(10)
 
-epochs = 100
-# Update the model.fit() call
-history = model.fit(train_ds, validation_data=val_ds, epochs=epochs, verbose=0, callbacks=[custom_logger])
-
-'''
+epochs = 50
+history = model.fit(train_ds, validation_data=val_ds, epochs=epochs, callbacks=[log_callback],verbose=0)
 
 #visualizing the accuracy and loss
 acc = history.history['accuracy'] 
