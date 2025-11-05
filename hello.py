@@ -85,7 +85,7 @@ plt.show()
 
 num_classes = len(class_names) 
 model = Sequential([ 
-    data_augmentation,
+    #data_augmentation,
     #Rescales images to [0,1] and sets input image size
 	layers.Rescaling(1./255, input_shape=(180,180, 3)), 
     # Adds a convolutional layer with 16 filters and ReLU activation(dot product)
@@ -103,7 +103,6 @@ model = Sequential([
 
 #uses adam optimizer and using CategoricalCrossEntropy to find minimum loss during epochs 
 model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy']) 
-#model.summary() 
 
 
 class LogEveryNEpochs(Callback):
@@ -118,9 +117,9 @@ class LogEveryNEpochs(Callback):
                   f"Val Loss: {logs.get('val_loss'):.4f} - Val Acc: {logs.get('val_accuracy'):.4f}")
 
 # Instantiate the custom callback to log every 10 epochs
-log_callback = LogEveryNEpochs(10)
+log_callback = LogEveryNEpochs(1)
 
-epochs = 50
+epochs = 10
 history = model.fit(train_ds, validation_data=val_ds, epochs=epochs, callbacks=[log_callback],verbose=0)
 
 #visualizing the accuracy and loss
