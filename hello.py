@@ -12,6 +12,7 @@ from keras import layers
 from keras.models import Sequential
 from keras.callbacks import Callback
 import pathlib
+import settings1 as settings
 
 #getting the roof dataset 
 data_dir = pathlib.Path(r"C:\Users\lsboyin\OneDrive - IL State University\StartingProject\PRJ-4671\PRJ-4671\Project--roof-subassembly-damage-detection-image-datasets\data\Global Damage Classifier data\train data")
@@ -67,7 +68,7 @@ for images, labels in train_ds.take(1):
         plt.axis("off")
 plt.show()
 
-data_augmentation = keras.Sequential([layers.RandomFlip("horizontal",input_shape=(180,180,3)), layers.RandomRotation(0.1), layers.RandomZoom(0.1),])
+data_augmentation = keras.Sequential([layers.RandomFlip("horizontal",input_shape=(180,180,3)), layers.RandomRotation(0.2), layers.RandomZoom(0.2),])
 plt.figure(figsize=(10,10))
 for images, labels in train_ds.take(1):
     if images.shape[0] < 9:
@@ -84,8 +85,9 @@ for images, labels in train_ds.take(1):
 plt.show()
 
 num_classes = len(class_names) 
+#6 layers with the first layer having 97,200 nuerons
 model = Sequential([ 
-    #data_augmentation,
+    data_augmentation,
     #Rescales images to [0,1] and sets input image size
 	layers.Rescaling(1./255, input_shape=(180,180, 3)), 
     # Adds a convolutional layer with 16 filters and ReLU activation(dot product)
@@ -117,9 +119,9 @@ class LogEveryNEpochs(Callback):
                   f"Val Loss: {logs.get('val_loss'):.4f} - Val Acc: {logs.get('val_accuracy'):.4f}")
 
 # Instantiate the custom callback to log every 10 epochs
-log_callback = LogEveryNEpochs(1)
+log_callback = LogEveryNEpochs(10)
 
-epochs = 10
+epochs = settings.epochs
 history = model.fit(train_ds, validation_data=val_ds, epochs=epochs, callbacks=[log_callback],verbose=0)
 
 #visualizing the accuracy and loss
