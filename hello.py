@@ -84,21 +84,27 @@ for images, labels in train_ds.take(1):
         plt.axis("off")
 plt.show()
 
+#3 num_classes
 num_classes = len(class_names) 
-#6 layers with the first layer having 97,200 nuerons
+#6 layers and input size is 97,2000 
 model = Sequential([ 
     data_augmentation,
     #Rescales images to [0,1] and sets input image size
 	layers.Rescaling(1./255, input_shape=(180,180, 3)), 
-    # Adds a convolutional layer with 16 filters and ReLU activation(dot product)
+    # Adds a convolutional layer with 16 output channels and ReLU activation(dot product)
+	#432 weights and 16 biases 
 	layers.Conv2D(16, 3, padding='same', activation='relu'), 
     #Adds a max-pooling layer to down sample feature maps and decreases parameters
 	layers.MaxPooling2D(), 
+	#convolutional layer contains 4,640 params
 	layers.Conv2D(32, 3, padding='same', activation='relu'), 
 	layers.MaxPooling2D(), 
+	#convolutional layer contains 18,496 params
 	layers.Conv2D(64, 3, padding='same', activation='relu'), 
 	layers.MaxPooling2D(), 
-	layers.Flatten(), 
+	#changed from layers.Flatten()
+	layers.GlobalAveragePooling2D(), 
+	#(128 + 1) * num_classes params
 	layers.Dense(128, activation='relu'), 
 	layers.Dense(num_classes) 
 ]) 
@@ -141,4 +147,5 @@ plt.plot(epochs_range, loss, label='Training Loss')
 plt.plot(epochs_range, val_loss, label='Validation Loss') 
 plt.legend(loc='upper right') 
 plt.title('Training and Validation Loss') 
+
 plt.show() 
