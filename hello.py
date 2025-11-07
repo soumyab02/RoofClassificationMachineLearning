@@ -35,7 +35,7 @@ train_ds = tf.keras.utils.image_dataset_from_directory(
     validation_split = 0.2,
     subset="training",
     seed=123,
-    image_size=(180,180),
+    image_size=(settings.pixel_size,settings.pixel_size),
     batch_size=32
 )
 
@@ -45,7 +45,7 @@ val_ds = tf.keras.utils.image_dataset_from_directory(
     validation_split = 0.2,
     subset="validation",
     seed=123,
-    image_size=(180,180),
+    image_size=(settings.pixel_size,settings.pixel_size),
     batch_size=32
 )
 
@@ -68,7 +68,7 @@ for images, labels in train_ds.take(1):
         plt.axis("off")
 plt.show()
 
-data_augmentation = keras.Sequential([layers.RandomFlip("horizontal",input_shape=(180,180,3)), layers.RandomRotation(0.2), layers.RandomZoom(0.2),])
+data_augmentation = keras.Sequential([layers.RandomFlip("horizontal",input_shape=(settings.pixel_size,settings.pixel_size,3)), layers.RandomRotation(0.2), layers.RandomZoom(0.2),])
 plt.figure(figsize=(10,10))
 for images, labels in train_ds.take(1):
     if images.shape[0] < 9:
@@ -90,7 +90,7 @@ num_classes = len(class_names)
 model = Sequential([ 
     data_augmentation,
     #Rescales images to [0,1] and sets input image size
-	layers.Rescaling(1./255, input_shape=(180,180, 3)), 
+	layers.Rescaling(1./255, input_shape=(settings.pixel_size,settings.pixel_size, 3)), 
     # Adds a convolutional layer with 16 output channels and ReLU activation(dot product)
 	#432 weights and 16 biases 
 	layers.Conv2D(16, 3, padding='same', activation='relu'), 
@@ -101,9 +101,8 @@ model = Sequential([
 	layers.MaxPooling2D(), 
 	#convolutional layer contains 18,496 params
 	layers.Conv2D(64, 3, padding='same', activation='relu'), 
-	layers.MaxPooling2D(), 
-	#changed from layers.Flatten()
-	layers.GlobalAveragePooling2D(), 
+	#layers.MaxPooling2D(), 
+	layers.Flatten(),
 	#(128 + 1) * num_classes params
 	layers.Dense(128, activation='relu'), 
 	layers.Dense(num_classes) 
