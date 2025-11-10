@@ -68,7 +68,7 @@ for images, labels in train_ds.take(1):
         plt.axis("off")
 plt.show()
 
-data_augmentation = keras.Sequential([layers.RandomFlip("horizontal",input_shape=(settings.pixel_size,settings.pixel_size,3)), layers.RandomRotation(0.2), layers.RandomZoom(0.2),])
+data_augmentation = keras.Sequential([layers.RandomFlip("horizontal",input_shape=(settings.pixel_size,settings.pixel_size,3)), layers.RandomRotation(0.3), layers.RandomZoom(0.3),])
 plt.figure(figsize=(10,10))
 for images, labels in train_ds.take(1):
     if images.shape[0] < 9:
