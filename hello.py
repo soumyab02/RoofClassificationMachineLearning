@@ -68,7 +68,7 @@ for images, labels in train_ds.take(1):
         plt.axis("off")
 plt.show()
 
-data_augmentation = keras.Sequential([layers.RandomFlip("horizontal",input_shape=(settings.pixel_size,settings.pixel_size,3)), layers.RandomRotation(0.3), layers.RandomZoom(0.3),])
+data_augmentation = keras.Sequential([layers.RandomFlip("horizontal",input_shape=(settings.pixel_size,settings.pixel_size,3)), layers.RandomRotation(settings.pic_randomization), layers.RandomZoom(settings.pic_randomization),])
 plt.figure(figsize=(10,10))
 for images, labels in train_ds.take(1):
     if images.shape[0] < 9:
@@ -86,25 +86,29 @@ plt.show()
 
 #3 num_classes
 num_classes = len(class_names) 
-#6 layers and input size is 97,2000 
 model = Sequential([ 
     data_augmentation,
-    #Rescales images to [0,1] and sets input image size
 	layers.Rescaling(1./255, input_shape=(settings.pixel_size,settings.pixel_size, 3)), 
-    # Adds a convolutional layer with 16 output channels and ReLU activation(dot product)
-	#432 weights and 16 biases 
+    #outputs a 3D tensor where depth corresponds to the number of filters
+    #It enables the model to detect local patterns like edges or textures
+    #specialized for processing grid-like data such as images
 	layers.Conv2D(16, 3, padding='same', activation='relu'), 
-    #Adds a max-pooling layer to down sample feature maps and decreases parameters
+    #Pooling layers downsample feature maps reducing spatial dimensions while retaining important features
+    #They help control overfitting and decrease computation
 	layers.MaxPooling2D(), 
-	#convolutional layer contains 4,640 params
-	layers.Conv2D(32, 3, padding='same', activation='relu'), 
+	layers.Conv2D(32, 3, padding='same', activation='relu'),
 	layers.MaxPooling2D(), 
-	#convolutional layer contains 18,496 params
 	layers.Conv2D(64, 3, padding='same', activation='relu'), 
-	#layers.MaxPooling2D(), 
+	layers.MaxPooling2D(), 
+    #reshapes a multi-dimensional tensor into a one-dimensional vector
+    #This is important before passing data from convolutional layers to fully connected layers
 	layers.Flatten(),
 	#(128 + 1) * num_classes params
+    #fully connected layer where every input is connected to every neuron in the layer
+    #It is most commonly used at the end of convolutional networks or in feedforward architectures
 	layers.Dense(128, activation='relu'), 
+    #randomly sets a fraction of input units to zero during training, preventing reliance on specific neurons
+    layers.Dropout(0.5),
 	layers.Dense(num_classes) 
 ]) 
 
