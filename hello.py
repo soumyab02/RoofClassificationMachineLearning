@@ -106,9 +106,8 @@ model = Sequential([
 	#(128 + 1) * num_classes params
     #fully connected layer where every input is connected to every neuron in the layer
     #It is most commonly used at the end of convolutional networks or in feedforward architectures
-	layers.Dense(128, activation='relu'), 
-    #randomly sets a fraction of input units to zero during training, preventing reliance on specific neurons
-    layers.Dropout(0.5),
+	layers.Dense(128, activation='relu'),
+    layers.Dense(64, activation='relu'),
 	layers.Dense(num_classes) 
 ]) 
 
