@@ -8,7 +8,6 @@ import tensorflow as tf
 import pathlib
 from tensorflow import keras
 from keras import layers
-from keras import layers
 from keras.models import Sequential
 from keras.callbacks import Callback
 import pathlib
@@ -16,6 +15,7 @@ import settings1 as settings
 
 #getting the roof dataset 
 data_dir = pathlib.Path(r"C:\Users\lsboyin\OneDrive - IL State University\StartingProject\PRJ-4671\PRJ-4671\Project--roof-subassembly-damage-detection-image-datasets\data\Global Damage Classifier data\train data")
+AUTOTUNE = tf.data.AUTOTUNE
 
 #showing the number of images in the dataset
 image_count = len(list(data_dir.glob('*/*')))
@@ -68,7 +68,7 @@ for images, labels in train_ds.take(1):
         plt.axis("off")
 plt.show()
 
-data_augmentation = keras.Sequential([layers.RandomFlip("horizontal",input_shape=(settings.pixel_size,settings.pixel_size,3)), layers.RandomRotation(settings.pic_randomization), layers.RandomZoom(settings.pic_randomization),])
+data_augmentation = keras.Sequential([layers.RandomFlip("horizontal"),layers.RandomRotation(settings.pic_randomization), layers.RandomZoom(settings.pic_randomization), layers.RandomTranslation(settings.pic_translation, settings.pic_translation)])
 plt.figure(figsize=(10,10))
 for images, labels in train_ds.take(1):
     if images.shape[0] < 9:
@@ -106,13 +106,13 @@ model = Sequential([
 	#(128 + 1) * num_classes params
     #fully connected layer where every input is connected to every neuron in the layer
     #It is most commonly used at the end of convolutional networks or in feedforward architectures
-	layers.Dense(128, activation='relu'),
-    layers.Dense(64, activation='relu'),
-	layers.Dense(num_classes) 
+	layers.Dense(64, activation='relu'),
+    layers.Dense(32, activation='relu'),
+	layers.Dense(num_classes, activation='softmax') 
 ]) 
 
 #uses adam optimizer and using CategoricalCrossEntropy to find minimum loss during epochs 
-model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy']) 
+model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False), metrics=['accuracy']) 
 
 
 class LogEveryNEpochs(Callback):
@@ -149,5 +149,4 @@ plt.plot(epochs_range, loss, label='Training Loss')
 plt.plot(epochs_range, val_loss, label='Validation Loss') 
 plt.legend(loc='upper right') 
 plt.title('Training and Validation Loss') 
-
 plt.show() 
