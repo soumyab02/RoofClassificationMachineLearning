@@ -53,6 +53,9 @@ val_ds = tf.keras.utils.image_dataset_from_directory(
 class_names = train_ds.class_names
 print(class_names)
 
+train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE)
+val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
+
 #shows us a couple of images through matplotlib and classifies what type of image it is 
 plt.figure(figsize=(10,10))
 for images, labels in train_ds.take(1):
@@ -96,19 +99,25 @@ model = Sequential([
     #Pooling layers downsample feature maps reducing spatial dimensions while retaining important features
     #They help control overfitting and decrease computation
 	layers.MaxPooling2D(), 
-	layers.Conv2D(32, 3, padding='same', activation='relu'),
+	layers.Conv2D(32, 3, padding='same', activation='relu', kernel_regularizer=tf.keras.regularizers.l2(1e-4)),
+    #stablizies learning and reduces overfitting
+    layers.BatchNormalization(),
 	layers.MaxPooling2D(), 
 	layers.Conv2D(64, 3, padding='same', activation='relu'), 
 	layers.MaxPooling2D(), 
     #reshapes a multi-dimensional tensor into a one-dimensional vector
     #This is important before passing data from convolutional layers to fully connected layers
 	layers.Flatten(),
+    layers.Dense(128, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(1e-4)),
 	#(128 + 1) * num_classes params
     #fully connected layer where every input is connected to every neuron in the layer
     #It is most commonly used at the end of convolutional networks or in feedforward architectures
-	layers.Dense(64, activation='relu'),
-    layers.Dense(32, activation='relu'),
-	layers.Dense(num_classes, activation='softmax') 
+	#layers.Dense(64, activation='relu'),
+    #layers.Dense(32, activation='relu'),
+    layers.BatchNormalization(),
+    #prevents co-adaptation of nuerons 
+    layers.Dropout(0.2),
+	layers.Dense(num_classes, activation='softmax')
 ]) 
 
 #uses adam optimizer and using CategoricalCrossEntropy to find minimum loss during epochs 
