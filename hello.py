@@ -114,7 +114,6 @@ reduceLR_cb = keras.callbacks.ReduceLROnPlateau(montior='val_loss', factor=0.5, 
 
 # Instantiate the custom callback to log every 10 epochs
 log_callback = LogEveryNEpochs(10)
-
 callbacks = [earlystop_cb, reduceLR_cb, log_callback]
 epochs = settings.epochs
 history = model.fit(train_ds, validation_data=val_ds, epochs=epochs, callbacks=callbacks,verbose=0)
@@ -124,7 +123,7 @@ acc = history.history['accuracy']
 val_acc = history.history['val_accuracy'] 
 loss = history.history['loss'] 
 val_loss = history.history['val_loss'] 
-epochs_range = range(epochs) 
+epochs_range = range(len(val_acc))
 plt.figure(figsize=(8, 8)) 
 plt.subplot(1, 2, 1) 
 plt.plot(epochs_range, acc, label='Training Accuracy') 
