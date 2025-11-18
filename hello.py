@@ -109,8 +109,8 @@ class LogEveryNEpochs(Callback):
                   f"Loss: {logs.get('loss'):.4f} - Acc: {logs.get('accuracy'):.4f} - "
                   f"Val Loss: {logs.get('val_loss'):.4f} - Val Acc: {logs.get('val_accuracy'):.4f}")
             
-earlystop_cb = keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True, verbose=0)
-reduceLR_cb = keras.callbacks.ReduceLROnPlateau(montior='val_loss', factor=0.5, patience=4, min_lr=1e-7, verbose=0)
+earlystop_cb = keras.callbacks.EarlyStopping(monitor='val_loss', patience=30, restore_best_weights=True, verbose=0)
+reduceLR_cb = keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=4, min_lr=1e-7, verbose=0)
 
 # Instantiate the custom callback to log every 10 epochs
 log_callback = LogEveryNEpochs(10)
@@ -135,4 +135,5 @@ plt.plot(epochs_range, loss, label='Training Loss')
 plt.plot(epochs_range, val_loss, label='Validation Loss') 
 plt.legend(loc='upper right') 
 plt.title('Training and Validation Loss') 
+
 plt.show() 
