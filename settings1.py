@@ -1,4 +1,4 @@
-epochs = 50
-pixel_size = 210
+epochs = 80
+pixel_size = 224
 pic_randomization = 0.2
-pic_translation = 0.05
+pic_translation = 0.10

@@ -25,10 +25,6 @@ if(image_count == 0):
     all_files = list(data_dir.glob('*/*'))
     print(f"Found Files (first 5): {[str(f) for f in all_files[:5]]}")
 
-#not really working right now
-destroyed = list(data_dir.glob('Destroyed/*'))
-PIL.Image.open(str(destroyed[0]))
-
 #training 80% of the dataset
 train_ds = tf.keras.utils.image_dataset_from_directory(
     data_dir,
@@ -112,12 +108,16 @@ class LogEveryNEpochs(Callback):
             print(f"\nEpoch {epoch + 1}/{self.params['epochs']} - "
                   f"Loss: {logs.get('loss'):.4f} - Acc: {logs.get('accuracy'):.4f} - "
                   f"Val Loss: {logs.get('val_loss'):.4f} - Val Acc: {logs.get('val_accuracy'):.4f}")
+            
+earlystop_cb = keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True, verbose=0)
+reduceLR_cb = keras.callbacks.ReduceLROnPlateau(montior='val_loss', factor=0.5, patience=4, min_lr=1e-7, verbose=0)
 
 # Instantiate the custom callback to log every 10 epochs
 log_callback = LogEveryNEpochs(10)
 
+callbacks = [earlystop_cb, reduceLR_cb, log_callback]
 epochs = settings.epochs
-history = model.fit(train_ds, validation_data=val_ds, epochs=epochs, callbacks=[log_callback],verbose=0)
+history = model.fit(train_ds, validation_data=val_ds, epochs=epochs, callbacks=callbacks,verbose=0)
 
 #visualizing the accuracy and loss
 acc = history.history['accuracy'] 
